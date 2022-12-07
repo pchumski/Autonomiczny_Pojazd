@@ -16,6 +16,7 @@ colors = {
     'crosswalk':(255,0,0),
     'trafficlight':(0,255,0)
 }
+color_name = ["orange", "red", "blue", "green"]
 
 yolov5_file = r'moje_modele/bestn.pt'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -57,7 +58,7 @@ def object_detection(frame, frame_t):
                 detected_name = names[c]
 
                 # print(f'Detected: {detected_name} conf: {conf}  bbox: x1:{x1}    y1:{y1}    x2:{x2}    y2:{y2}')
-                detection_result.append([x1, y1, x2, y2, conf, c])
+                detection_result.append([x1, y1, x2, y2, conf, names[c], color_name[c]])
                 
                 frame_t = cv2.rectangle(frame_t, (x1, y1), (x2, y2), colors[names[c]], 1) # box
                 frame_t = cv2.putText(frame_t, f'{names[c]} {str(conf)}', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[names[c]], 1, cv2.LINE_AA)

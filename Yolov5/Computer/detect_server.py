@@ -1,7 +1,9 @@
 from flask import Flask, render_template, Response
 import cv2
 import numpy as np
-from my_detect import object_detection
+from my_detect import object_detection 
+
+boxes = [[1,2,3,4,5,6,7,8]]
 
 app = Flask(__name__)
 
@@ -11,10 +13,11 @@ def video_feed():
     return Response(show_camera(), mimetype='multipart/x-mixed-replace; boundary=frame')
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', boxes=boxes)
 
 
 def show_camera():
+    global boxes
     cap = cv2.VideoCapture(0)
     if cap.isOpened():
         window_handle = cv2.namedWindow("Camera Frame", cv2.WINDOW_AUTOSIZE)
@@ -26,6 +29,7 @@ def show_camera():
             frame_c = cv2.cvtColor(frame_c, cv2.COLOR_BGR2RGB)
 
             img, box = object_detection(frame_c, frame_org)
+            boxes = box.copy()
             ret, buffer = cv2.imencode('.jpg', img)
         
             frame = buffer.tobytes()
