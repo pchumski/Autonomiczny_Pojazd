@@ -4,14 +4,20 @@ from models.common import DetectMultiBackend
 import torch
 import cv2
 import numpy as np
-from utils.distance import Distance_finder, know_distance,known_width
+from utils.distance import Distance_finder, know_distance,known_width_sign, known_width_traffic_light
 
 
 names = ['speedlimit', 'stop', 'crosswalk', 'trafficlight']
 
-colors = list(np.random.rand(len(names),3)*255)
-# 529
-yolov5_file = r'bestn.pt'
+colors_random = list(np.random.rand(len(names),3)*255)
+colors = {
+    'speedlimit':(0,128,255),
+    'stop':(0,0,255),
+    'crosswalk':(255,0,0),
+    'trafficlight':(0,255,0)
+}
+
+yolov5_file = r'moje_modele/bestn.pt'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = attempt_load(yolov5_file, device=device)
 
@@ -43,16 +49,19 @@ def object_detection(frame, frame_t):
                 c = int(d[5].item())
                 
                 object_width = x2 - x1
-                distance = Distance_finder(known_width, focal_length, object_width)
+                if names[c] != 'trafficlight':
+                    distance = Distance_finder(known_width_sign, focal_length, object_width)
+                else:
+                    distance = Distance_finder(known_width_traffic_light, focal_length, object_width)
                 
                 detected_name = names[c]
 
                 # print(f'Detected: {detected_name} conf: {conf}  bbox: x1:{x1}    y1:{y1}    x2:{x2}    y2:{y2}')
                 detection_result.append([x1, y1, x2, y2, conf, c])
                 
-                frame_t = cv2.rectangle(frame_t, (x1, y1), (x2, y2), colors[c], 1) # box
-                frame_t = cv2.putText(frame_t, f'{names[c]} {str(conf)}', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[c], 1, cv2.LINE_AA)
-                frame_t = cv2.putText(frame_t, f'Distance: {round(distance,2)}', (x1, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[c], 1, cv2.LINE_AA) 
+                frame_t = cv2.rectangle(frame_t, (x1, y1), (x2, y2), colors[names[c]], 1) # box
+                frame_t = cv2.putText(frame_t, f'{names[c]} {str(conf)}', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[names[c]], 1, cv2.LINE_AA)
+                frame_t = cv2.putText(frame_t, f'Distance: {round(distance,2)}', (x1, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[names[c]], 1, cv2.LINE_AA) 
 
     return frame_t, detection_result
 
