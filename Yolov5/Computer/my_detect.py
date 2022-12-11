@@ -28,6 +28,10 @@ model = attempt_load(yolov5_file, device=device)
 
 focal_length = 529
 yolo_width = 320
+def load_image_into_numpy_array(image):
+    (im_width, im_height) = image.size
+    return np.array(image.getdata()).reshape(
+        (im_height, im_width, 3)).astype(np.uint8)
 
 def detect_red_and_yellow(img,Threshold=0.01):
     height, width = img.shape[:2]
@@ -104,10 +108,6 @@ def object_detection(frame, frame_t):
                         else:
                             traffic_color = "Green"
                             stop_flag = False
-                        #print(traffic_color)
-                        # crop_img = detect_red_and_yellow(crop_img, x1,y1,x2,y2)
-                        # cv2.imshow("Masked", crop_img)
-                    #print("Nie udalo sie wyciac")
                     except:
                         print("Unable to crop Image")
                 

@@ -19,7 +19,13 @@ def video_feed():
         return Response(show_diffault_image())
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', message="")
+
+@app.route("/stop/", methods=["POST"])
+def stop():
+    message = "STOP"
+    return render_template("index.html", message=message)
+
 
 def show_diffault_image():
     img = cv2.imread("image/Ref_image.png")
