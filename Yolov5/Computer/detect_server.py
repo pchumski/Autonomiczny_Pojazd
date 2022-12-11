@@ -5,18 +5,16 @@ from my_detect import object_detection
 from datetime import timedelta
 
 boxes = [[1,2,3,4,5,6,7,8]]
+stop_flag = False
+camera_flag = False
 
 app = Flask(__name__)
 # app.secret_key = "hello"
 # app.permanent_session_lifetime = timedelta(minutes=5)
 
-@app.route('/video_feed', methods=["POST", "GET", "PUT"])
+@app.route('/video_feed')
 def video_feed():
-    #Video streaming route. Put this in the src attribute of an img tag
-    if request.method == "GET":
-        return Response(show_camera(), mimetype='multipart/x-mixed-replace; boundary=frame')
-    else:
-        return Response(show_diffault_image())
+    return Response(show_camera(), mimetype='multipart/x-mixed-replace; boundary=frame')
 @app.route('/')
 def index():
     return render_template('index.html', message="")
@@ -25,6 +23,10 @@ def index():
 def stop():
     message = "STOP"
     return render_template("index.html", message=message)
+@app.route('/SomeFunction')
+def SomeFunction():
+    print('In SomeFunction')
+    return "Nothing"
 
 
 def show_diffault_image():

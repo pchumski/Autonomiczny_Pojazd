@@ -66,6 +66,7 @@ def detect_red_and_yellow(img,Threshold=0.01):
     # return result
 
 def object_detection(frame, frame_t):
+    global stop_flag
     height, width = frame.shape[:2]
     new_height = int((((yolo_width/width)*height)//32)*32)
     frame = cv2.resize(frame, (yolo_width,new_height))
