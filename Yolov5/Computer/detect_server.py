@@ -1,21 +1,32 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, session, request
 import cv2
 import numpy as np
 from my_detect import object_detection 
+from datetime import timedelta
 
 boxes = [[1,2,3,4,5,6,7,8]]
 
 app = Flask(__name__)
+# app.secret_key = "hello"
+# app.permanent_session_lifetime = timedelta(minutes=5)
 
-@app.route('/video_feed')
+@app.route('/video_feed', methods=["POST", "GET", "PUT"])
 def video_feed():
     #Video streaming route. Put this in the src attribute of an img tag
-    return Response(show_camera(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    if request.method == "GET":
+        return Response(show_camera(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    else:
+        return Response(show_diffault_image())
 @app.route('/')
 def index():
-    return render_template('index.html', boxes=boxes)
+    return render_template('index.html')
 
-
+def show_diffault_image():
+    img = cv2.imread("image/Ref_image.png")
+    ret, buffer = cv2.imencode('.jpg', img)
+    frame = buffer.tobytes()
+    return frame
+    
 def show_camera():
     global boxes
     cap = cv2.VideoCapture(0)
@@ -29,6 +40,8 @@ def show_camera():
             frame_c = cv2.cvtColor(frame_c, cv2.COLOR_BGR2RGB)
 
             img, box = object_detection(frame_c, frame_org)
+            # if len(box):
+            #     print(box)
             boxes = box.copy()
             ret, buffer = cv2.imencode('.jpg', img)
         

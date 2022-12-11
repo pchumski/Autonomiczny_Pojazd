@@ -8,6 +8,10 @@ from utils.distance import Distance_finder, know_distance,known_width_sign, know
 
 
 names = ['speedlimit', 'stop', 'crosswalk', 'trafficlight']
+stop_flag = False
+
+#names = ['trafficlight']
+
 
 colors_random = list(np.random.rand(len(names),3)*255)
 colors = {
@@ -18,17 +22,49 @@ colors = {
 }
 color_name = ["orange", "red", "blue", "green"]
 
-yolov5_file = r'moje_modele/bestn.pt'
+yolov5_file = r'moje_modele/bestl.pt'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = attempt_load(yolov5_file, device=device)
 
 focal_length = 529
+yolo_width = 320
 
+def detect_red_and_yellow(img,Threshold=0.01):
+    height, width = img.shape[:2]
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    # lower mask (0-10)
+    lower_red = np.array([0, 70, 50])
+    upper_red = np.array([10, 255, 255])
+    mask0 = cv2.inRange(img_hsv, lower_red, upper_red)
+
+    # upper mask (170-180)
+    lower_red1 = np.array([170, 70, 50])
+    upper_red1 = np.array([180, 255, 255])
+    mask1 = cv2.inRange(img_hsv, lower_red1, upper_red1)
+
+    # defining the Range of yellow color
+    lower_yellow = np.array([21, 39, 64])
+    upper_yellow = np.array([40, 255, 255])
+    mask2 = cv2.inRange(img_hsv, lower_yellow, upper_yellow)
+
+    # red pixels' mask
+    mask = mask0 + mask1 + mask2
+
+    # Compare the percentage of red values
+    rate = np.count_nonzero(mask) / (height * width)
+
+    if rate > Threshold:
+        return True
+    else:
+        return False
+    # result = cv2.bitwise_and(img, img, mask=mask)
+    # return result
 
 def object_detection(frame, frame_t):
     height, width = frame.shape[:2]
-    new_height = int((((320/width)*height)//32)*32)
-    frame = cv2.resize(frame, (320,new_height))
+    new_height = int((((yolo_width/width)*height)//32)*32)
+    frame = cv2.resize(frame, (yolo_width,new_height))
     img = torch.from_numpy(frame).to(device)
     img = img.permute(2, 0, 1).float().to(device)  
     img /= 255.0  
@@ -42,20 +78,42 @@ def object_detection(frame, frame_t):
     for i, det in enumerate(pred):
         if len(det): 
             for d in det: 
-                x1 = int(d[0].item() * width/320)
+                x1 = int(d[0].item() * width/yolo_width)
                 y1 = int(d[1].item() * height/new_height)
-                x2 = int(d[2].item() * width/320)
+                x2 = int(d[2].item() * width/yolo_width)
                 y2 = int(d[3].item()* height/new_height)
                 conf = round(d[4].item(), 2)
                 c = int(d[5].item())
+                traffic_color = ""
                 
                 object_width = x2 - x1
                 if names[c] != 'trafficlight':
                     distance = Distance_finder(known_width_sign, focal_length, object_width)
+                    if names[c] == "stop" or names[c] == "crosswalk":
+                        stop_flag = True
+                    else:
+                        stop_flag = False
                 else:
                     distance = Distance_finder(known_width_traffic_light, focal_length, object_width)
+                    crop_img = np.copy(frame_t)
+                    try:
+                        crop_img = crop_img[int(y1):int(y2),int(x1):int(x2),:]
+                        if detect_red_and_yellow(crop_img, 0.05):
+                            traffic_color = "Red"
+                            stop_flag = True
+                        else:
+                            traffic_color = "Green"
+                            stop_flag = False
+                        #print(traffic_color)
+                        # crop_img = detect_red_and_yellow(crop_img, x1,y1,x2,y2)
+                        # cv2.imshow("Masked", crop_img)
+                    #print("Nie udalo sie wyciac")
+                    except:
+                        print("Unable to crop Image")
                 
                 detected_name = names[c]
+                if stop_flag:
+                    print("STOP")
 
                 # print(f'Detected: {detected_name} conf: {conf}  bbox: x1:{x1}    y1:{y1}    x2:{x2}    y2:{y2}')
                 detection_result.append([x1, y1, x2, y2, conf, names[c], color_name[c]])
