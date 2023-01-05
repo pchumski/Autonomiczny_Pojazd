@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from my_detect import object_detection 
 from datetime import timedelta
+from utils.distance import stackImages
 
 boxes = [[1,2,3,4,5,6,7,8]]
 stop_flag = False
@@ -47,10 +48,11 @@ def show_camera():
             frame_c = np.copy(frame_org)
             frame_c = cv2.cvtColor(frame_c, cv2.COLOR_BGR2RGB)
 
-            img, box = object_detection(frame_c, frame_org)
+            img, box, crop = object_detection(frame_c, frame_org)
             # if len(box):
             #     print(box)
             boxes = box.copy()
+            #img = stackImages(0.5, [img, crop])
             ret, buffer = cv2.imencode('.jpg', img)
         
             frame = buffer.tobytes()

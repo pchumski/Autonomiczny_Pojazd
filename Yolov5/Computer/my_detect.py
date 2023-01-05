@@ -4,7 +4,7 @@ from models.common import DetectMultiBackend
 import torch
 import cv2
 import numpy as np
-from utils.distance import Distance_finder, know_distance,known_width_sign, known_width_traffic_light
+from utils.distance import Distance_finder, know_distance,known_width_sign, known_width_traffic_light, stackImages
 
 
 names = ['speedlimit', 'stop', 'crosswalk', 'trafficlight']
@@ -80,6 +80,7 @@ def object_detection(frame, frame_t):
     pred = non_max_suppression(pred, 0.45, 0.45) 
    
     detection_result = []
+    crop_img = np.copy(frame_t)
     for i, det in enumerate(pred):
         if len(det): 
             for d in det: 
@@ -100,10 +101,10 @@ def object_detection(frame, frame_t):
                         stop_flag = False
                 else:
                     distance = Distance_finder(known_width_traffic_light, focal_length, object_width)
-                    crop_img = np.copy(frame_t)
+                    # crop_img = np.copy(frame_t)
                     try:
                         crop_img = crop_img[int(y1):int(y2),int(x1):int(x2),:]
-                        if detect_red_and_yellow(crop_img, 0.05):
+                        if detect_red_and_yellow(crop_img, 0.15):
                             traffic_color = "Red"
                             stop_flag = True
                         else:
@@ -123,7 +124,7 @@ def object_detection(frame, frame_t):
                 frame_t = cv2.putText(frame_t, f'{names[c]} {str(conf)}', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[names[c]], 1, cv2.LINE_AA)
                 frame_t = cv2.putText(frame_t, f'Distance: {round(distance,2)}', (x1, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[names[c]], 1, cv2.LINE_AA) 
 
-    return frame_t, detection_result
+    return frame_t, detection_result, crop_img
 
 if __name__ == "__main__":
     cap = cv2.VideoCapture(0)
@@ -131,9 +132,10 @@ if __name__ == "__main__":
     while True:
         ret,frame = cap.read()
         frame_c = np.copy(frame)
-        result, box = object_detection(frame_c, frame)
+        result, box, crop = object_detection(frame_c, frame)
         
-        cv2.imshow("Result", result)
+        result_stack = stackImages(0.5, [result, crop])
+        cv2.imshow("Result", result_stack)
         
         if cv2.waitKey(1) == ord('q'):
             break
