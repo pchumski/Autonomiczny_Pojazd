@@ -52,7 +52,7 @@ def show_camera():
             # if len(box):
             #     print(box)
             boxes = box.copy()
-            #img = stackImages(0.5, [img, crop])
+            img = stackImages(1, [img, frame_org])
             ret, buffer = cv2.imencode('.jpg', img)
         
             frame = buffer.tobytes()
@@ -66,7 +66,7 @@ def show_camera():
         cv2.destroyAllWindows()
     else:
         print("unable to open camera")
-
+        
 if __name__ == "__main__":
     show_camera()
     app.run(host='192.168.1.12')
