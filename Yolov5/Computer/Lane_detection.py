@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import utlis
-from flask import Flask, render_template, Response
+#from flask import Flask, render_template, Response
 
 
 # app = Flask(__name__)
@@ -17,7 +17,7 @@ def getLaneCurve(img,display=2):
  
     #### STEP 2
     hT, wT, c = img.shape
-    points = np.float32([(110, hT/2-20), (wT-110, hT/2-20),(0 , hT ), (wT, hT)])
+    points = np.float32([(110, hT/2+20), (wT-110, hT/2+20),(0 , hT ), (wT, hT)])
     imgWarp = utlis.warpImg(imgThres,points,wT,hT)
     imgWarpPoints = utlis.drawPoints(imgCopy,points)
  

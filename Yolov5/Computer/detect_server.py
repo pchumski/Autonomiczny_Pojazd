@@ -4,14 +4,13 @@ import numpy as np
 from my_detect import object_detection 
 from datetime import timedelta
 from utils.distance import stackImages
+from Lane_detection import getLaneCurve
 
 boxes = [[1,2,3,4,5,6,7,8]]
 stop_flag = False
 camera_flag = False
 
 app = Flask(__name__)
-# app.secret_key = "hello"
-# app.permanent_session_lifetime = timedelta(minutes=5)
 
 @app.route('/video_feed')
 def video_feed():
@@ -20,14 +19,14 @@ def video_feed():
 def index():
     return render_template('index.html', message="")
 
-@app.route("/stop/", methods=["POST"])
-def stop():
-    message = "STOP"
-    return render_template("index.html", message=message)
-@app.route('/SomeFunction')
-def SomeFunction():
-    print('In SomeFunction')
-    return "Nothing"
+# @app.route("/stop/", methods=["POST"])
+# def stop():
+#     message = "STOP"
+#     return render_template("index.html", message=message)
+# @app.route('/SomeFunction')
+# def SomeFunction():
+#     print('In SomeFunction')
+#     return "Nothing"
 
 
 def show_diffault_image():
@@ -44,15 +43,16 @@ def show_camera():
 
         while cv2.getWindowProperty("Camera Frame",0) >= 0:
             ret_val,frame_org = cap.read()
-        
+            img_line = np.copy(frame_org)
             frame_c = np.copy(frame_org)
             frame_c = cv2.cvtColor(frame_c, cv2.COLOR_BGR2RGB)
 
             img, box, crop = object_detection(frame_c, frame_org)
-            # if len(box):
-            #     print(box)
+            
             boxes = box.copy()
-            img = stackImages(1, [img, frame_org])
+            img_line = cv2.resize(img_line,(480,240))
+            curve, img_l = getLaneCurve(img_line,display=2)
+            img = stackImages(1, [img, img_l])
             ret, buffer = cv2.imencode('.jpg', img)
         
             frame = buffer.tobytes()
