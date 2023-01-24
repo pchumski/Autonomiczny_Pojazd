@@ -22,7 +22,7 @@ colors = {
 }
 color_name = ["orange", "red", "blue", "green"]
 
-yolov5_file = r'moje_modele/bestl.pt'
+yolov5_file = r'moje_modele/best_nowe.pt'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = attempt_load(yolov5_file, device=device)
 
@@ -107,15 +107,18 @@ def object_detection(frame, frame_t):
                         if detect_red_and_yellow(crop_img, 0.15):
                             traffic_color = "Red"
                             stop_flag = True
+                            print("Red or Yellow")
                         else:
                             traffic_color = "Green"
+                            print("Green or Nothing")
                             stop_flag = False
                     except:
-                        print("Unable to crop Image")
+                        None
+                        #print("Unable to crop Image")
                 
                 detected_name = names[c]
-                if stop_flag:
-                    print("STOP")
+                # if stop_flag:
+                #     print("STOP")
 
                 # print(f'Detected: {detected_name} conf: {conf}  bbox: x1:{x1}    y1:{y1}    x2:{x2}    y2:{y2}')
                 detection_result.append([x1, y1, x2, y2, conf, names[c], color_name[c]])

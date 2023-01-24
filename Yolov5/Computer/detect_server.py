@@ -49,10 +49,10 @@ def show_camera():
 
             img, box, crop = object_detection(frame_c, frame_org)
             
-            boxes = box.copy()
-            img_line = cv2.resize(img_line,(480,240))
-            curve, img_l = getLaneCurve(img_line,display=2)
-            img = stackImages(1, [img, img_l])
+            # boxes = box.copy()
+            # img_line = cv2.resize(img_line,(480,240))
+            # curve, img_l = getLaneCurve(img_line,display=2)
+            # img = stackImages(1, [img, img_l])
             ret, buffer = cv2.imencode('.jpg', img)
         
             frame = buffer.tobytes()

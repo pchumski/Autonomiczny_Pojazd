@@ -1,0 +1,7 @@
+.col {
+    padding: 1rem;
+    background-color: darkslategrey;
+    border: 2px solid white;
+    color: white;
+    text-align: center;
+}
