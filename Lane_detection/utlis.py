@@ -2,19 +2,22 @@ import cv2
 import numpy as np
  
 def thresholding(img):
-    imgHsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
-    lowerWhite = np.array([0,0,116])
-    upperWhite = np.array([255,59,255])
-    maskWhite = cv2.inRange(imgHsv,lowerWhite,upperWhite)
-    return maskWhite
+    # Wyodrebnianie bialego koloru
+    hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+    lw = np.array([0,0,116])
+    uw = np.array([255,59,255])
+    maska = cv2.inRange(hsv,lw,uw)
+    return maska
  
 def warpImg(img,points,w,h,inv = False):
     pts1 = np.float32(points)
     pts2 = np.float32([[0,0],[w,0],[0,h],[w,h]])
     if inv:
-        matrix = cv2.getPerspectiveTransform(pts2, pts1)
+        matrix = cv2.getPerspectiveTransform(pts2, pts1) # Przkształcenie perspektywy
     else:
         matrix = cv2.getPerspectiveTransform(pts1,pts2)
+        
+    # Zaginanie obrazu
     imgWarp = cv2.warpPerspective(img,matrix,(w,h))
     return imgWarp
  

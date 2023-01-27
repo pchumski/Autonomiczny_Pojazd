@@ -19,15 +19,6 @@ def video_feed():
 def index():
     return render_template('index.html', message="")
 
-# @app.route("/stop/", methods=["POST"])
-# def stop():
-#     message = "STOP"
-#     return render_template("index.html", message=message)
-# @app.route('/SomeFunction')
-# def SomeFunction():
-#     print('In SomeFunction')
-#     return "Nothing"
-
 
 def show_diffault_image():
     img = cv2.imread("image/Ref_image.png")
@@ -40,7 +31,7 @@ def show_camera():
     cap = cv2.VideoCapture(0)
     if cap.isOpened():
         window_handle = cv2.namedWindow("Camera Frame", cv2.WINDOW_AUTOSIZE)
-
+        # Sprawdzenie czy kamera jest otwarta
         while cv2.getWindowProperty("Camera Frame",0) >= 0:
             ret_val,frame_org = cap.read()
             img_line = np.copy(frame_org)
@@ -52,11 +43,14 @@ def show_camera():
             # boxes = box.copy()
             # img_line = cv2.resize(img_line,(480,240))
             # curve, img_l = getLaneCurve(img_line,display=2)
-            # img = stackImages(1, [img, img_l])
+            #img = stackImages(0.7, [img, crop])
             ret, buffer = cv2.imencode('.jpg', img)
         
+            # Formatowanie na bity
             frame = buffer.tobytes()
+            # Przekazywanie klastki z kamery za kazdym wywolaniem
             yield(b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            # Wylaczanie kamery
             keyCode = cv2.waitKey(30) & 0xFF
             
             if keyCode == 27:
@@ -65,7 +59,7 @@ def show_camera():
         cap.release()
         cv2.destroyAllWindows()
     else:
-        print("unable to open camera")
+        print("Nie mozna otworzyc kamery")
         
 if __name__ == "__main__":
     show_camera()

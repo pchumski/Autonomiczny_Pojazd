@@ -33,36 +33,55 @@ def load_image_into_numpy_array(image):
     return np.array(image.getdata()).reshape(
         (im_height, im_width, 3)).astype(np.uint8)
 
-def detect_red_and_yellow(img,Threshold=0.01):
+def detect_color(img,Threshold=0.01):
     height, width = img.shape[:2]
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # lower mask (0-10)
     lower_red = np.array([0, 70, 50])
     upper_red = np.array([10, 255, 255])
     mask0 = cv2.inRange(img_hsv, lower_red, upper_red)
 
-    # upper mask (170-180)
     lower_red1 = np.array([170, 70, 50])
     upper_red1 = np.array([180, 255, 255])
     mask1 = cv2.inRange(img_hsv, lower_red1, upper_red1)
 
-    # defining the Range of yellow color
-    lower_yellow = np.array([21, 39, 64])
-    upper_yellow = np.array([40, 255, 255])
+    lower_yellow = np.array([21, 120, 50])
+    upper_yellow = np.array([31, 255, 255])
     mask2 = cv2.inRange(img_hsv, lower_yellow, upper_yellow)
 
-    # red pixels' mask
-    mask = mask0 + mask1 + mask2
+    mask_red = mask0 + mask1 #+ mask2
 
-    # Compare the percentage of red values
-    rate = np.count_nonzero(mask) / (height * width)
+    rate_red = np.count_nonzero(mask_red) / (height * width)
+    
+    lower_green = np.array([35, 70, 70])
+    upper_green = np.array([70, 255, 255])
+    mask3 = cv2.inRange(img_hsv, lower_green, upper_green)
 
-    if rate > Threshold:
-        return True
+    lower_green1 = np.array([170, 70, 50])
+    upper_green1 = np.array([150, 255, 255])
+    mask4 = cv2.inRange(img_hsv, lower_green1, upper_green1)
+    
+    mask_green = mask3 + mask4
+    
+    rate_green = np.count_nonzero(mask_green) / (height * width)
+    
+    lower_yellow1 = np.array([170, 120, 50])
+    upper_yellow1 = np.array([180, 255, 51])
+    mask5 = cv2.inRange(img_hsv, lower_yellow1, upper_yellow1)
+    
+    mask_yellow = mask2 + mask5
+    
+    rate_yellow = np.count_nonzero(mask_yellow) / (height * width)
+
+    if rate_red > Threshold:
+        return 'red'
+    elif rate_green > Threshold:
+        return 'green'
+    elif rate_yellow > Threshold:
+        return 'yellow'
     else:
-        return False
-    # result = cv2.bitwise_and(img, img, mask=mask)
+        return 'nothing'
+    # result = cv2.bitwise_and(img, img, mask=mask_red)
     # return result
 
 def object_detection(frame, frame_t):
@@ -81,6 +100,7 @@ def object_detection(frame, frame_t):
    
     detection_result = []
     crop_img = np.copy(frame_t)
+    # crop_res = np.copy(frame_t)
     for i, det in enumerate(pred):
         if len(det): 
             for d in det: 
@@ -101,17 +121,25 @@ def object_detection(frame, frame_t):
                         stop_flag = False
                 else:
                     distance = Distance_finder(known_width_traffic_light, focal_length, object_width)
-                    # crop_img = np.copy(frame_t)
+                    #crop_res = np.copy(frame_t)
                     try:
                         crop_img = crop_img[int(y1):int(y2),int(x1):int(x2),:]
-                        if detect_red_and_yellow(crop_img, 0.15):
+                        #crop_res = detect_red_and_yellow(crop_img, 0.15)
+                        if detect_color(crop_img, 0.30) == 'red':
                             traffic_color = "Red"
                             stop_flag = True
-                            print("Red or Yellow")
-                        else:
+                            # print("Red")
+                        elif detect_color(crop_img, 0.30) == 'green':
                             traffic_color = "Green"
-                            print("Green or Nothing")
+                            # print("Green")
                             stop_flag = False
+                        elif detect_color(crop_img, 0.30) == 'yellow':
+                            traffic_color = 'Yellow'
+                            # print("Yellow")
+                        else:
+                            traffic_color = 'No color'
+                            #print("Traffic with no color")
+                        frame_t = cv2.putText(frame_t, f'Traffic color: {traffic_color}', (x2, y2+25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,0,255), 1, cv2.LINE_AA) 
                     except:
                         None
                         #print("Unable to crop Image")
@@ -125,7 +153,8 @@ def object_detection(frame, frame_t):
                 
                 frame_t = cv2.rectangle(frame_t, (x1, y1), (x2, y2), colors[names[c]], 1) # box
                 frame_t = cv2.putText(frame_t, f'{names[c]} {str(conf)}', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[names[c]], 1, cv2.LINE_AA)
-                frame_t = cv2.putText(frame_t, f'Distance: {round(distance,2)}', (x1, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[names[c]], 1, cv2.LINE_AA) 
+                frame_t = cv2.putText(frame_t, f'Distance: {round(distance,2)}', (x1, y2+10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, colors[names[c]], 1, cv2.LINE_AA) 
+                
 
     return frame_t, detection_result, crop_img
 
