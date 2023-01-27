@@ -4,7 +4,8 @@ import numpy as np
 from utils.general import non_max_suppression
 
 know_distance = 30
-known_width_sign = 5.1
+#known_width_sign = 2.3
+known_width_sign = 5.2
 known_width_traffic_light = 3.3
 def FocalLength(measured_distance, real_width, width_in_rf_image):
     """Obliczanie długości ogniskowej

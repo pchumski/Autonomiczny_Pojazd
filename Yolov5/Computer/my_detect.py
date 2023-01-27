@@ -26,8 +26,8 @@ yolov5_file = r'moje_modele/best_nowe.pt'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = attempt_load(yolov5_file, device=device)
 
-focal_length = 529
-yolo_width = 320
+focal_length = 520
+yolo_width = 640
 def load_image_into_numpy_array(image):
     (im_width, im_height) = image.size
     return np.array(image.getdata()).reshape(
