@@ -1,0 +1,2 @@
+curveList = []
+avgVal = 10
