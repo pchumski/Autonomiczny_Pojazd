@@ -17,7 +17,7 @@ Autonomous vehicles have gained a lot of popularity in recent years, making them
 * Yolo
 ### Links
 * [Engineering Thesis](https://github.com/pchumski/Autonomous-Car/blob/main/BSc%20Thesis/BSc_Thesis.pdf)
-* [Presentation]()
+* [Presentation](https://github.com/pchumski/Autonomous-Car/tree/main/presentation)
 * [Picture & Video](https://drive.google.com/drive/u/1/folders/1PUePPLqRdV5ynQXc28LMWLCpgILiKmpQ)
 * [Transitional project documentation](https://github.com/pchumski/Autonomous-Car/tree/main/transit%20project/documentation)
 * [Transitional project Video](https://drive.google.com/file/d/158aSpdDO3zHkLfEMy2sxm0N-qa4N-M8S/view?usp=sharing)
