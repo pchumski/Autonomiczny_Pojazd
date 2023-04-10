@@ -1,5 +1,5 @@
 # Engineering Thesis
-## Autonomus Car
+## Autonomous Car
 ### Abstract
 Autonomous vehicles have gained a lot of popularity in recent years, making them a hot topic worldwide. This trend is also related to the development and popularization of artificial intelligence. Inspired by this, we created our own project in this field. Using the YOLO (You Only Look Once) algorithm, we developed a system for detecting and recognizing road signs and traffic lights. Additionally, using image processing techniques, we programmed our Nvidia Jetson Jetracer platform to track lines. Moreover, we designed our own controller, which allows remote control of the vehicle. The camera feed can be monitored via a Flask library-based server. The majority of the project is based on Python, while the controller was designed using Kicad software. After assembling and soldering the entire controller circuit, we programmed it using an ESP32 microcontroller. Altogether, our project fits into the concept of autonomous vehicles, which was our goal.
 ### Platform
