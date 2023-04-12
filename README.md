@@ -21,3 +21,5 @@ Autonomous vehicles have gained a lot of popularity in recent years, making them
 * [Picture & Video](https://drive.google.com/drive/u/1/folders/1PUePPLqRdV5ynQXc28LMWLCpgILiKmpQ)
 * [Transitional project documentation - old](https://github.com/pchumski/Autonomous-Car/tree/main/transit%20project/documentation)
 * [Transitional project video - old](https://drive.google.com/file/d/158aSpdDO3zHkLfEMy2sxm0N-qa4N-M8S/view?usp=sharing)
+
+Last update 02.2023
